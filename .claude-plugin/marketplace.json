@@ -1,0 +1,13 @@
+{
+  "name": "kenzo0107-plugins",
+  "owner": {
+    "name": "kenzo0107"
+  },
+  "plugins": [
+    {
+      "name": "pr-triage",
+      "source": "./plugins/pr-triage",
+      "description": "複数リポジトリのPRを取得し優先度でトリアージする"
+    }
+  ]
+}

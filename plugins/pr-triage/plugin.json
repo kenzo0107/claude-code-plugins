@@ -1,0 +1,5 @@
+{
+  "name": "pr-triage",
+  "version": "0.1.1",
+  "description": "複数リポジトリのPRを取得し優先度でトリアージする"
+}
