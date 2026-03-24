@@ -8,6 +8,11 @@
       "name": "pr-triage",
       "source": "./plugins/pr-triage",
       "description": "複数リポジトリのPRを取得し優先度でトリアージする"
+    },
+    {
+      "name": "aws-cost-reduction",
+      "source": "./plugins/aws-cost-reduction",
+      "description": "AWSコスト削減に関するプラグイン"
     }
   ]
 }
