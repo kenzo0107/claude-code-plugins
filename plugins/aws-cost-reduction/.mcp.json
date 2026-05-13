@@ -3,7 +3,7 @@
     "aws-ce": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.cost-explorer-mcp-server@latest"],
+      "args": ["awslabs.billing-cost-management-mcp-server@latest"],
       "env": {
         "AWS_PROFILE": "claude",
         "AWS_REGION": "ap-northeast-1",
