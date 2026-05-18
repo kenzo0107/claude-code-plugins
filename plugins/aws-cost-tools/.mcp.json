@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "aws-ce": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["awslabs.billing-cost-management-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "claude",
+        "AWS_REGION": "ap-northeast-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    }
+  }
+}
