@@ -1,0 +1,9 @@
+{
+  "name": "monthly-report",
+  "version": "0.1.0",
+  "description": "エンジニアの月報作成を支援し、評価者に成果が伝わりやすい月報を効率的に作成する",
+  "author": {
+    "name": "Example Author",
+    "email": "author@example.com"
+  }
+}
