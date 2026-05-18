@@ -1,0 +1,11 @@
+# ローカル設定ファイル
+.claude/*.local.md
+
+# ドラフトファイル
+.claude/monthly-report-draft.md
+
+# システムファイル
+.DS_Store
+*.swp
+*.swo
+*~
