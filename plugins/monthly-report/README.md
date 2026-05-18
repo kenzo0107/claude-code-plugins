@@ -10,6 +10,7 @@
 - 📊 **月報生成**: 蓄積した記録からQ/L/D形式の月報を自動生成
 - ✅ **品質レビュー**: 月報の品質を自動チェックし、改善提案
 - 🔗 **Notion連携**: Notion月報データベースへの直接投稿・更新
+- 📄 **ページ管理**: 自分が作成したNotionページを一覧表示・取得
 
 ## 前提条件
 
@@ -49,7 +50,22 @@ github_username: "example-user"
 
 ## 使い方
 
-### 1. 週次で活動を記録
+### 1. その月に作成したNotionページを追加
+
+```
+/monthly-report:list-my-pages
+```
+
+- その月に作成したNotionページ（レポート、構成図など）を自動検索
+- カテゴリ別に分類して表示
+- 選択したページを月報ドラフトに追加
+
+#### オプション
+
+- `--month YYYY-MM`: 対象月を指定（デフォルト: 今月）
+- `--add-to-draft`: 確認なしで全ページを自動追加
+
+### 2. 週次でGitHub活動を記録
 
 ```
 /monthly-report:add-weekly-entry
@@ -58,7 +74,7 @@ github_username: "example-user"
 - 前回記録以降のGitHub PRを自動収集
 - ローカルドラフト（`.claude/monthly-report-draft.md`）に追加
 
-### 2. 月報を生成・投稿
+### 3. 月報を生成・投稿
 
 ```
 /monthly-report:generate-report
@@ -73,6 +89,29 @@ github_username: "example-user"
 
 - `--month YYYY-MM`: 対象月を指定（デフォルト: 今月）
 - `--update`: 既存ページを更新（デフォルト: 新規作成）
+
+## 推奨ワークフロー
+
+### 月末の月報作成フロー
+
+```bash
+# 1. 今月作成したNotionページを確認・追加
+/monthly-report:list-my-pages --add-to-draft
+
+# 2. 今月のGitHub PRを追加
+/monthly-report:add-weekly-entry
+
+# 3. ドラフトを編集（各TODO部分を記入）
+# .claude/monthly-report-draft.md を編集
+
+# 4. 月報を生成・投稿
+/monthly-report:generate-report
+```
+
+**重要なポイント**:
+- NotionページとGitHub PRの両方を含めることで、包括的な成果報告が可能
+- インフラ構成図、レポート、ドキュメントなどもエビデンスとして含められる
+- ドラフト編集時に、各成果物の目的や工夫した点を記入することで、評価者に伝わりやすくなる
 
 ## 月報フォーマット
 
@@ -91,7 +130,7 @@ github_username: "example-user"
 - 新しく学んだこと・成長した点
 
 ## ④ エビデンス
-- PRリンク、ドキュメントリンク等
+- PRリンク、Notionドキュメントリンク等
 ```
 
 ## トラブルシューティング
