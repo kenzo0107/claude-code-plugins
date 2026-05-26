@@ -13,6 +13,16 @@
       "name": "aws-cost-reduction",
       "source": "./plugins/aws-cost-reduction",
       "description": "AWSコスト削減に関するプラグイン"
+    },
+    {
+      "name": "aws-cost-tools",
+      "source": "./plugins/aws-cost-tools",
+      "description": "AWS Savings Plans と Reserved Instances の分析・最適化を支援する"
+    },
+    {
+      "name": "monthly-report",
+      "source": "./plugins/monthly-report",
+      "description": "エンジニアの月報作成を支援し、評価者に成果が伝わりやすい月報を効率的に作成する"
     }
   ]
 }
