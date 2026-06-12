@@ -23,6 +23,11 @@
       "name": "monthly-report",
       "source": "./plugins/monthly-report",
       "description": "エンジニアの月報作成を支援し、評価者に成果が伝わりやすい月報を効率的に作成する"
+    },
+    {
+      "name": "night-mode",
+      "source": "./plugins/night-mode",
+      "description": "夜間の安全な AI 自律稼働環境を提供し、--dangerously-skip-permissions を安全に使えるようにする"
     }
   ]
 }
