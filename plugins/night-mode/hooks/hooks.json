@@ -1,0 +1,63 @@
+{
+  "description": "夜間安全モード: 危険な操作をブロックし、実行ログを記録する",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/night-mode-bash-guard.sh",
+            "timeout": 5,
+            "statusMessage": "Night Mode: コマンド安全確認中..."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/night-mode-file-guard.sh",
+            "timeout": 5,
+            "statusMessage": "Night Mode: ファイル安全確認中..."
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/night-mode-file-guard.sh",
+            "timeout": 5,
+            "statusMessage": "Night Mode: ファイル安全確認中..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/night-mode-logger.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $CLAUDE_PLUGIN_ROOT/hooks/night-mode-stop.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
