@@ -18,6 +18,11 @@
 | ファイル破壊 | `rm -rf /`, `rm -rf ~/`, `rm -rf .` など |
 | Git 履歴改ざん | `git push --force`, `git reset --hard` |
 | デプロイ操作 | `terraform apply/destroy`, `cdk deploy`, `sam deploy`, `aws` CLI |
+| クラウド CLI | `gcloud`, `gsutil`, `bq`, `az`, `doctl`, `heroku`, `firebase`, `vercel`, `netlify`, `pulumi`, `serverless` |
+| Kubernetes / Helm | `kubectl apply/create/delete/patch/...`, `helm install/upgrade/uninstall/...` |
+| GitHub CLI 変更操作 | `gh repo create/delete`, `gh pr create/merge`, `gh issue create/close`, `gh release create`, `gh workflow run`, `gh secret/variable set` など |
+| パッケージ公開 | `npm publish`, `yarn publish`, `cargo publish`, `gem push`, `twine upload`, `poetry publish` |
+| Docker レジストリ | `docker push`, `docker image push`, `docker manifest push` |
 | インタラクティブ | `vi`, `vim`, `nano`, `less` など（無人実行でハング） |
 | 機密ファイル編集 | `~/.ssh/*`, `~/.aws/credentials`, `*.pem`, `*.key` など |
 
