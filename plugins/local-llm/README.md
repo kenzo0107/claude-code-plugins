@@ -43,6 +43,18 @@ Go/Pythonのコード差分をセキュリティ・品質観点でローカルLL
 意図的に7件の脆弱性を仕込んだPythonサンプルでの検証では、`gemma4:12b` が6/7件検出
 (約60秒)、`qwen3.6:27b` が7/7件検出(約2分30秒)、誤検知なし。
 
+### /commit-push-pr
+
+ブランチ作成・コミット・push・PR作成を一括で行う。公式 `commit-commands:commit-push-pr`
+と同等の作業を、メッセージ・本文の生成にローカルLLMを使って行う版。
+
+> **公式 `commit-commands:commit` / `commit-commands:commit-push-pr` との違い**:
+> 公式コマンドは `allowed-tools` が git/gh 系のみに絞られており、プロンプトも
+> 「他のツールは使うな」と明記しているため、本プラグインの自動発火スキル
+> (`python3` / `curl` が必要)はその実行中には発火できない。同等の作業をローカルLLMで
+> 行いたい場合は、公式コマンドではなく `/commit-msg`(= `/commit` 相当)や
+> `/commit-push-pr`(= `/commit-push-pr` 相当)をこちらのプラグインから使うこと。
+
 ## 自動発火するスキル
 
 `/tf-review` `/commit-msg` `/pr-body` `/code-review` は、対応する場面
