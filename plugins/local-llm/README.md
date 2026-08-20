@@ -8,6 +8,8 @@
 - モデル: `ollama pull gemma4:12b`(約8GB。メモリ16GB以上のMac推奨)
 - コミットメッセージ生成には `ollama pull qwen3.6:27b`(約17GB)も必要
   (精度検証の結果、複数変更を含むdiffの箇条書き分解はgemma4:12bでは不正確だったため)
+- `/android-*` コマンドを使う場合はAndroid SDK(`adb` `emulator` がPATH、または
+  `ANDROID_HOME`/`ANDROID_SDK_ROOT` から解決できること)
 
 ## コマンド
 
@@ -48,6 +50,27 @@ Go/Pythonのコード差分をセキュリティ・品質観点でローカルLL
 意図的に7件の脆弱性を仕込んだPythonサンプルでの検証では、`gemma4:12b` が6/7件検出
 (約60秒)、`qwen3.6:27b` が7/7件検出(約2分30秒)、誤検知なし。
 
+### /android-build [task]
+
+Androidプロジェクト(`gradlew` があるディレクトリ)をビルドする。ビルド自体は通常の
+`./gradlew` 実行で行い、失敗した場合の原因診断だけをローカルLLMに任せる。
+
+```
+/android-build                    # ./gradlew assembleDebug
+/android-build testDebugUnitTest  # 任意のGradleタスクを指定
+```
+
+### /android-install
+
+実機/エミュレータの起動確認(無ければAVDを起動)→ `./gradlew installDebug` でビルド・
+インストールまでを一括で行う。失敗時(ビルド失敗・`INSTALL_FAILED_*` など)の原因診断を
+ローカルLLMに任せる。
+
+### /android-release [APK|AAB]
+
+リリースAPK(`assembleRelease`、既定)またはAAB(`bundleRelease`)を生成する。署名設定が
+無い場合は未署名になる旨を先に警告する。失敗時の原因診断をローカルLLMに任せる。
+
 ### /commit-push-pr
 
 ブランチ作成・コミット・push・PR作成を一括で行う。公式 `commit-commands:commit-push-pr`
@@ -70,6 +93,10 @@ Ollamaが起動していない場合はスキップされ、通常のクラウ�
 
 - モデル変更: いずれも環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b、commit-msgのみ
   qwen3.6:27b。tf-reviewのみ `TF_REVIEW_MODEL`)
+
+`/android-build` `/android-install` `/android-release` はエミュレータ起動・実機への
+インストール・リリース生成という副作用の大きい操作を含むため、自動発火はさせずコマンド
+実行のみとしている(失敗時の原因診断部分だけがローカルLLMを使う)。
 
 ## 設計方針
 
