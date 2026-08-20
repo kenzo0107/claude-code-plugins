@@ -17,7 +17,7 @@ curl -s http://localhost:11434/api/tags
 ```
 
 - 接続できない場合: Ollamaが起動していない。`brew services start ollama` を案内して終了する
-- モデル一覧に `gemma4:12b` が無い場合: `ollama pull gemma4:12b` を案内して終了する
+- モデル一覧に `qwen3.6:27b` が無い場合: `ollama pull qwen3.6:27b` を案内して終了する
 
 ### ステップ2: ステージ確認
 
@@ -37,4 +37,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/commit_msg.py
 
 ## 注意
 
-- モデル変更: 環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b)
+- 既定モデルは `qwen3.6:27b`(生成に数十秒)。精度検証の結果、`gemma4:12b` は複数の変更を
+  含むdiffで箇条書きへの分解を誤ることがあったため、コミットメッセージはこちらを既定にしている
+- モデル変更: 環境変数 `LOCAL_REVIEW_MODEL`

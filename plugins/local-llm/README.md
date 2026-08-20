@@ -6,6 +6,8 @@
 
 - [Ollama](https://ollama.com/) 0.32以降: `brew install ollama && brew services start ollama`
 - モデル: `ollama pull gemma4:12b`(約8GB。メモリ16GB以上のMac推奨)
+- コミットメッセージ生成には `ollama pull qwen3.6:27b`(約17GB)も必要
+  (精度検証の結果、複数変更を含むdiffの箇条書き分解はgemma4:12bでは不正確だったため)
 
 ## コマンド
 
@@ -26,6 +28,9 @@
 ### /commit-msg
 
 ステージ済みの変更(`git add` 済み)からコミットメッセージをローカルLLMで生成する。
+既定モデルは `qwen3.6:27b`(約30〜40秒)。実際のdiff(機能追加・バグ修正・リネームの3種の
+変更を混在させたテスト)で比較したところ、`gemma4:12b` は複数変更を1行に圧縮し規約の
+箇条書き分解ができなかったのに対し、`qwen3.6:27b` はClaudeが書く案と同等の精度だった。
 
 ### /pr-body [base]
 
@@ -63,8 +68,8 @@ Claude Codeが自律的に判断してスキルとしても呼び出す(`user-in
 Ollamaが起動していない場合はスキップされ、通常のクラウドLLMでの処理にフォールバックする
 (ブロッカーにはしない)。
 
-- モデル変更: いずれも環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b。tf-reviewのみ
-  `TF_REVIEW_MODEL`)
+- モデル変更: いずれも環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b、commit-msgのみ
+  qwen3.6:27b。tf-reviewのみ `TF_REVIEW_MODEL`)
 
 ## 設計方針
 

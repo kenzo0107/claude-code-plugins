@@ -27,7 +27,7 @@ python3/curlを呼べないため、ローカルLLMのスキルが発火でき�
 curl -s http://localhost:11434/api/tags
 ```
 
-- 接続できない、または `gemma4:12b` が無い場合: その旨を伝え、通常の
+- 接続できない、または `qwen3.6:27b` / `gemma4:12b` のいずれかが無い場合: その旨を伝え、通常の
   `commit-commands:commit-push-pr` 相当の手順(自分でメッセージ・本文を作成)にフォールバックする
 
 ### ステップ2: ブランチ
@@ -66,5 +66,8 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/pr_body.py origin/<デフォルトブラ�
 
 ## 注意
 
-- モデル変更: 環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b)
+- コミットメッセージ生成(`commit_msg.py`)は既定で `qwen3.6:27b` を使う(精度検証の結果、
+  `gemma4:12b` は複数の変更を含むdiffで箇条書きへの分解を誤ることがあったため)。
+  PR本文生成(`pr_body.py`)は既定 `gemma4:12b` のままで十分な精度
+- モデル変更: 環境変数 `LOCAL_REVIEW_MODEL`(両スクリプト共通)
 - `gh` のインストール・認証が前提(未認証ならその旨を案内して終了する)

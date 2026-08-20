@@ -14,7 +14,7 @@ import sys
 import urllib.request
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = os.environ.get("LOCAL_REVIEW_MODEL", "gemma4:12b")
+MODEL = os.environ.get("LOCAL_REVIEW_MODEL", "qwen3.6:27b")
 
 PROMPT = """次のgit diff(ステージ済みの変更)から、コミットメッセージを日本語で生成してください。
 
