@@ -28,6 +28,11 @@
       "name": "night-mode",
       "source": "./plugins/night-mode",
       "description": "夜間の安全な AI 自律稼働環境を提供し、--dangerously-skip-permissions を安全に使えるようにする"
+    },
+    {
+      "name": "local-llm",
+      "source": "./plugins/local-llm",
+      "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー)"
     }
   ]
 }
