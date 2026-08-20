@@ -1,5 +1,5 @@
 {
   "name": "local-llm",
-  "version": "0.1.0",
-  "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー)"
+  "version": "0.2.0",
+  "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー、コミットメッセージ/PR本文生成、Go/Pythonコードプレレビュー)"
 }

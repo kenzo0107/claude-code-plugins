@@ -32,7 +32,7 @@
     {
       "name": "local-llm",
       "source": "./plugins/local-llm",
-      "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー)"
+      "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform/Go/Pythonのプレレビュー、コミットメッセージ/PR本文生成)"
     }
   ]
 }

@@ -23,7 +23,40 @@
 - 指摘は参考情報(偽陽性あり得る)。最終判断は人間とCI(fmt/tflint/trivy)が担う
 - モデル変更: 環境変数 `TF_REVIEW_MODEL`(既定: gemma4:12b)
 
+### /commit-msg
+
+ステージ済みの変更(`git add` 済み)からコミットメッセージをローカルLLMで生成する。
+
+### /pr-body [base]
+
+ブランチ差分からGitHub PRの本文(Summary/Test plan)をローカルLLMで生成する。
+
+```
+/pr-body                # デフォルトブランチとの差分
+/pr-body origin/main    # 指定refとの差分
+```
+
+### /code-review [base]
+
+Go/Pythonのコード差分をセキュリティ・品質観点でローカルLLMがプレレビューする。
+同梱観点: `rules/go-security.md`、`rules/python-security.md`。
+意図的に7件の脆弱性を仕込んだPythonサンプルでの検証では、`gemma4:12b` が6/7件検出
+(約60秒)、`qwen3.6:27b` が7/7件検出(約2分30秒)、誤検知なし。
+
+## 自動発火するスキル
+
+`/tf-review` `/commit-msg` `/pr-body` `/code-review` は、対応する場面
+(Terraform差分のレビュー・コミット作成・PR作成・Go/Pythonの差分レビュー)で
+Claude Codeが自律的に判断してスキルとしても呼び出す(`user-invocable: false`)。
+Ollamaが起動していない場合はスキップされ、通常のクラウドLLMでの処理にフォールバックする
+(ブロッカーにはしない)。
+
+- モデル変更: いずれも環境変数 `LOCAL_REVIEW_MODEL`(既定: gemma4:12b。tf-reviewのみ
+  `TF_REVIEW_MODEL`)
+
 ## 設計方針
 
 制御フローはスクリプトで固定し、判断が必要な箇所だけローカルLLMを呼ぶ。
-LLMの出力は機械検証(マスク漏れ再走査など)で品質を担保する。
+LLMの出力は機械検証(マスク漏れ再走査など)や人間の最終確認で品質を担保する。
+生成系(コミットメッセージ・PR本文)は「ローカルLLMの出力をそのまま使う」ことが目的なので、
+Claudeが結果を自分の言葉で書き直すことはしない。
