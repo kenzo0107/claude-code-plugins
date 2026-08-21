@@ -83,6 +83,13 @@ Androidプロジェクト(`gradlew` があるディレクトリ)をビルドす�
 > 行いたい場合は、公式コマンドではなく `/commit-msg`(= `/commit` 相当)や
 > `/commit-push-pr`(= `/commit-push-pr` 相当)をこちらのプラグインから使うこと。
 
+### /clean-merged-branches
+
+`main` / `master` / `develop` を除くローカルブランチのうち、マージ済みで
+`git branch -d`(safe delete)が成功するものだけをまとめて削除する。`-D`(force)は使わない
+ため、未マージの作業ブランチを誤って消すことはない。ローカルLLMは使わない純粋なgit操作だが、
+他のコマンドと合わせて日常的に使うため本プラグインに同梱している。
+
 ## 自動発火するスキル
 
 `/tf-review` `/commit-msg` `/pr-body` `/code-review` は、対応する場面
@@ -97,6 +104,9 @@ Ollamaが起動していない場合はスキップされ、通常のクラウ�
 `/android-build` `/android-install` `/android-release` はエミュレータ起動・実機への
 インストール・リリース生成という副作用の大きい操作を含むため、自動発火はさせずコマンド
 実行のみとしている(失敗時の原因診断部分だけがローカルLLMを使う)。
+
+`/clean-merged-branches` はブランチ削除という取り消しにくい操作を含むため、同様に
+自動発火はさせずコマンド実行のみとしている。
 
 ## 設計方針
 
