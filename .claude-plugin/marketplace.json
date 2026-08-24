@@ -33,6 +33,11 @@
       "name": "local-llm",
       "source": "./plugins/local-llm",
       "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform/Go/Pythonのプレレビュー、コミットメッセージ/PR本文生成)"
+    },
+    {
+      "name": "self-review",
+      "source": "./plugins/self-review",
+      "description": "PR作成前に自分のコミットをセルフレビューし、受けたレビュー指摘を知見としてスキルに蓄積する"
     }
   ]
 }
