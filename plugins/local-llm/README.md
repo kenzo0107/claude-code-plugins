@@ -45,10 +45,28 @@
 
 ### /code-review [base]
 
-Go/Pythonのコード差分をセキュリティ・品質観点でローカルLLMがプレレビューする。
-同梱観点: `rules/go-security.md`、`rules/python-security.md`。
-意図的に7件の脆弱性を仕込んだPythonサンプルでの検証では、`gemma4:12b` が6/7件検出
-(約60秒)、`qwen3.6:27b` が7/7件検出(約2分30秒)、誤検知なし。
+Go/Python/Ruby/Kotlin/TypeScriptのコード差分をセキュリティ・品質観点でローカルLLMがプレレビューする。
+差分に含まれる拡張子から観点ファイルを自動選択する(`scripts/code_review.py --auto`)。
+同梱観点: `rules/go-security.md` `python-security.md` `ruby-security.md` `kotlin-android.md`
+`typescript-security.md`(言語別セキュリティ)、`general-quality.md`(言語非依存の品質。`/pr-review` で使用)。
+精度は local-llm リポジトリの `evals/` で継続測定している(`evals/RESULTS.md`)。
+
+### /pr-review <PR番号|URL> [--repo owner/repo]
+
+他人のPRを `gh pr diff` で取得し、言語別セキュリティ観点+一般品質観点でローカルLLMがプレレビューして
+レビューコメント案(要確認/参考)を Markdown で出す。投稿はユーザーが内容を確認してから
+`gh pr review --comment` で行う(勝手に投稿しない)。
+
+### /summarize <file|-> [--mode log|ci|diff|text] [--lines N] [--question "..."]
+
+長いログ・CI出力・diff・文書を要約する。入力の種類は自動判定、長い入力は分割→統合。
+「読んで要点を抜き出す」だけの作業をクラウドから逃がす用途。
+
+### /anonymize <file|->
+
+ログ・テキストの個人情報をマスクする。メール・IP・電話番号は正規表現で機械的に置換し、人名など
+文脈依存のものはローカルLLMに列挙させてコード側で置換。最後に正規表現で再走査し、漏れ疑いがあれば exit 2。
+クラウドLLMにログを渡す前の前処理。変換表 `*.map.json` は個人情報そのものなので外に出さない。
 
 ### /android-build [task]
 
@@ -96,10 +114,24 @@ Androidプロジェクト(`gradlew` があるディレクトリ)をビルドす�
 1ファイルが両方の状態を持つ場合(`git add` 後にさらに編集した場合など)は両方に表示される。
 `git status --porcelain` の解析のみの決定的処理で、ローカルLLMは使わない。
 
+## git push 前の自動プレレビュー(フック)
+
+`hooks/hooks.json` の PreToolUse フックが、Claude Code が `git push` を実行する直前に push 対象の差分
+(`@{upstream}` または `origin/<default>` との差分)をローカルLLMでプレレビューする。
+`.tf` は MedPeer 規約、`.go/.py/.rb/.kt/.ts` 等は言語別セキュリティ観点。
+
+- high confidence の指摘あり → 権限確認(ask)として指摘を表示し、ユーザーが push を続けるか判断する
+- low のみ / 指摘なし → そのまま push(指摘は Claude に渡され、報告に含まれる)
+- Ollama 未起動・対象差分なし・差分が巨大(120k文字超)→ 何もしない
+- 同じ HEAD への再 push はキャッシュを返す(承認後に待たせない)
+- 無効化: 環境変数 `LOCAL_LLM_SKIP_PUSH_REVIEW=1`
+- フックの変更は Claude Code の再起動後に反映される
+
 ## 自動発火するスキル
 
-`/tf-review` `/commit-msg` `/pr-body` `/code-review` は、対応する場面
-(Terraform差分のレビュー・コミット作成・PR作成・Go/Pythonの差分レビュー)で
+`/tf-review` `/commit-msg` `/pr-body` `/code-review` `/pr-review` `/summarize` `/anonymize` は、対応する場面
+(Terraform差分のレビュー・コミット作成・PR作成・対応言語の差分レビュー・他人のPRレビュー・長い出力の要約・
+個人情報を含むログの分析前)で
 Claude Codeが自律的に判断してスキルとしても呼び出す(`user-invocable: false`)。
 Ollamaが起動していない場合はスキップされ、通常のクラウドLLMでの処理にフォールバックする
 (ブロッカーにはしない)。
@@ -117,9 +149,31 @@ Ollamaが起動していない場合はスキップされ、通常のクラウ�
 `/git-status-color` はローカルLLMを使わない純粋な表示コマンドのため、そもそも自動発火スキル
 としては提供していない(ユーザーが見たいときにコマンドで呼ぶ用途)。
 
+## 共通設定(環境変数)
+
+| 変数 | 既定 | 用途 |
+|---|---|---|
+| `LOCAL_REVIEW_MODEL` | gemma4:12b(commit-msg は qwen3.6:27b) | 各スクリプトのモデル |
+| `TF_REVIEW_MODEL` / `TF_REVIEW_RULES` | gemma4:12b / medpeer-terraform の SKILL.md | tf-review のモデル・規約ファイル |
+| `LOCAL_LLM_MAX_NUM_CTX` | 32768 | 入力に応じて自動拡張する num_ctx の上限 |
+| `LOCAL_LLM_MAX_CHUNK_CHARS` | 24000 | これを超える差分はファイル単位に分割して処理 |
+| `LOCAL_LLM_THINK` | 0 | 1 で thinking を有効化(遅くなる。精度比較用) |
+| `LOCAL_LLM_QUIET` | 0 | 1 で stderr の進捗表示を抑止 |
+| `LOCAL_LLM_SKIP_PUSH_REVIEW` | 0 | 1 で push 前フックを無効化 |
+
+指定モデルが無い場合は `gemma4:12b` に自動フォールバックする(stderr に表示)。
+
+## 開発
+
+`scripts/` `rules/` `hooks/*.py` の編集元は [kenzo0107/local-llm](https://github.com/kenzo0107/local-llm) の `tools/` で、
+そこから `scripts/sync-plugin.sh` でコピーして同期する(このディレクトリを直接編集しない)。
+精度の回帰テストも local-llm リポジトリの `evals/` で行う。
+
 ## 設計方針
 
-制御フローはスクリプトで固定し、判断が必要な箇所だけローカルLLMを呼ぶ。
+制御フローはスクリプトで固定し、判断が必要な箇所だけローカルLLMを呼ぶ。全スクリプトは共通クライアント
+(`scripts/ollama_client.py`)を通り、system/user メッセージの分離と指示の再掲、JSON Schema による出力強制、
+入力量に応じた num_ctx 拡張、大きな差分のファイル単位分割を一律に適用する。
 LLMの出力は機械検証(マスク漏れ再走査など)や人間の最終確認で品質を担保する。
 生成系(コミットメッセージ・PR本文)は「ローカルLLMの出力をそのまま使う」ことが目的なので、
 Claudeが結果を自分の言葉で書き直すことはしない。

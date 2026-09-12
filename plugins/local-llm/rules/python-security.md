@@ -41,3 +41,31 @@
 - 差分(+の行)に現れたコードのみ対象。既存コードの問題は指摘しない
 - 「外部入力が届くか不明」な場合は confidence を low にし、その旨を issue に書く
 - スタイルの好み・フォーマッタ(black/ruff)で検出できる事項は指摘しない
+
+## 判定例(few-shot)
+
+指摘すべき例(見逃しやすい):
+
+```python
++def read_upload(user_path: str) -> bytes:
++    with open(os.path.join(UPLOAD_DIR, user_path), "rb") as f:
+```
+→ category「インジェクション」: `os.path.join` は `user_path` が絶対パスや `..` を含むと
+UPLOAD_DIR の外を開ける(パストラバーサル)。`Path(UPLOAD_DIR, user_path).resolve()` が
+UPLOAD_DIR 配下にあることを検証する。confidence: high(引数名が外部入力を示している)
+
+```python
++def load_cache(path: str):
++    with open(path, "rb") as f:
++        return pickle.load(f)
+```
+→ category「インジェクション」: `pickle.load` は内容次第で任意コード実行になる。`path` の出所は差分から
+読めないが、危険 API の無防備な使用なので指摘する。confidence: low(呼び出し元の入力次第と明記)
+
+指摘してはいけない例(偽陽性):
+
+```python
++    cur.execute("SELECT id FROM users WHERE id = ?", (user_id,))
+```
+→ パラメータ化されているので SQL インジェクションではない。「user_id が文字列なら…」のような
+仮定での指摘はしない。

@@ -1,0 +1,18 @@
+{
+  "description": "git push の直前に push 対象の差分をローカルLLMでプレレビューする(.tf は MedPeer 規約、.go/.py/.rb/.kt/.ts 等は言語別セキュリティ観点)。high confidence の指摘があれば承認を求める。無効化: LOCAL_LLM_SKIP_PUSH_REVIEW=1",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_PLUGIN_ROOT/hooks/pre_push_review.py",
+            "timeout": 600,
+            "statusMessage": "local-llm: push 対象の差分をプレレビュー中..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -53,3 +53,27 @@
 - 差分(+行)に現れたコードのみ対象。既存コードの問題は指摘しない
 - 「外部入力が届くか不明」な場合は confidence を low にし、その旨を issue に書く
 - スタイルの好み・gofmt/リンタで検出できる事項は指摘しない
+
+## 判定例(few-shot)
+
+指摘すべき例:
+
+```go
++	out, err := exec.Command("sh", "-c", "ping -c 1 "+host).Output()
+```
+→ category「インジェクション」: `sh -c` に外部入力を連結している(OSコマンドインジェクション)。
+`exec.Command("ping", "-c", "1", host)` と引数分離し、host を検証する。confidence: high
+
+指摘してはいけない例(偽陽性):
+
+```go
++	row := db.QueryRow("SELECT id, name FROM users WHERE id = $1", id)
+```
+→ プレースホルダを使っているので指摘しない。
+
+```go
++	if err := f.Close(); err != nil {
++		return err
++	}
+```
+→ エラーを確認しているので「握りつぶし」ではない。

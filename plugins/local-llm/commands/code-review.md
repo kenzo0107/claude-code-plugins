@@ -1,6 +1,6 @@
 ---
 allowed-tools: Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*), Bash(git diff *), Read
-description: Go/Pythonのコード差分をセキュリティ・品質観点でローカルLLMがプレレビューする(クラウド利用枠を消費しない)
+description: Go/Python/Ruby/Kotlin/TypeScriptのコード差分をセキュリティ・品質観点でローカルLLMがプレレビューする(クラウド利用枠を消費しない)
 user-invocable: true
 args:
   - name: base
@@ -26,17 +26,19 @@ curl -s http://localhost:11434/api/tags
 
 ### ステップ2: 対象言語の判定
 
-`git diff $ARGUMENTS --stat` (省略時は `git diff --stat`) を見て、`.go` / `.py` の変更有無を確認する。
+`git diff $ARGUMENTS --stat` (省略時は `git diff --stat`) を見て、`.go` / `.py` / `.rb` / `.kt` / `.ts` などの変更有無を確認する。
 両方含まれる場合は両方の観点で実行する。どちらも無ければ「対象言語(Go/Python)の差分なし」と伝えて終了する。
 
 ### ステップ3: レビュー実行
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules/go-security.md $ARGUMENTS
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules/python-security.md $ARGUMENTS
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py --auto $ARGUMENTS
 ```
 
-該当する言語の方だけ実行する。
+`--auto` は差分に含まれる拡張子から観点ファイル(`rules/go-security.md`, `python-security.md`, `ruby-security.md`,
+`kotlin-android.md`, `typescript-security.md`)を自動選択し、該当言語のファイルだけをそれぞれレビューする。
+特定の観点だけ使いたい場合は `code_review.py <rules.md> [base]` と明示する。
+
 
 ### ステップ4: 結果の提示
 
@@ -44,7 +46,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules
 - 「低確度」の指摘は偽陽性の可能性があることを明記する
 - 自分(Claude)で指摘の妥当性を検証・修正はしない。ユーザーが修正を明示的に依頼した場合のみ対応する
 
-## 精度の目安(検証済み)
+## 精度の目安(evals で継続測定。最新は local-llm リポジトリの evals/RESULTS.md)
 
 意図的に7件の脆弱性を仕込んだPythonサンプルで検証: `gemma4:12b` は6/7件検出(パストラバーサルを
 見逃し、約60秒)、`qwen3.6:27b` は7/7件検出(約2分30秒)。誤検知なし。見逃しなく確認したい重要な

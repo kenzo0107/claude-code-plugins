@@ -3,6 +3,7 @@
 
 push前のセルフチェック用。クラウドLLMの利用枠を消費せず何度でも実行できる。
 指摘はあくまで参考(偽陽性あり得る)。最終判断は人間とCI(fmt/tflint/trivy)が担う。
+レビュー本体は code_review.review を使い、規約ファイルだけを差し替えている。
 
 使い方:
     cd <terraformリポジトリ>
@@ -11,37 +12,29 @@ push前のセルフチェック用。クラウドLLMの利用枠を消費せず�
     git diff main -- '*.tf' | python3 <このファイル> -   # diffを標準入力から
 """
 
-import json
 import os
 import subprocess
 import sys
-import urllib.request
 from pathlib import Path
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = os.environ.get("TF_REVIEW_MODEL", "gemma4:12b")
-RULES_PATH = Path(
-    "~/.claude/plugins/marketplaces/cc-sre-plugins/plugins/medpeer-terraform/"
-    "skills/medpeer-terraform/SKILL.md"
-).expanduser()
+HERE = Path(__file__).resolve().parent
+sys.path[:0] = [str(HERE), str(HERE.parent / "common"), str(HERE.parent / "code-review")]
+import code_review  # noqa: E402
+import ollama_client as oc  # noqa: E402
 
-PROMPT = """あなたはMedPeerのTerraformコーディング規約のレビュアーです。
-以下の「規約」に照らして「差分」をレビューし、規約違反・懸念のみをJSONで返してください。
+MODEL = os.environ.get("TF_REVIEW_MODEL", os.environ.get("LOCAL_REVIEW_MODEL", oc.DEFAULT_MODEL))
+RULES_PATH = Path(os.environ.get(
+    "TF_REVIEW_RULES",
+    "~/.claude/plugins/marketplaces/cc-sre-plugins/plugins/medpeer-terraform/skills/medpeer-terraform/SKILL.md",
+)).expanduser()
+TF_EXTS = (".tf", ".tfvars")
 
-ルール:
-- 差分に現れた変更行(+の行)だけを対象にする。既存コードの問題は指摘しない
-- 規約に根拠がある指摘のみ。一般論やスタイルの好みは出さない
-- 確信が持てないものは confidence を "low" にする
-- 問題がなければ {"findings": []} を返す
 
-出力形式(JSONのみ):
-{"findings": [
-  {"file": "ファイル名", "rule": "違反した規約の見出し", "issue": "何が問題か(1文)",
-   "fix": "修正案(コード断片可)", "confidence": "high|low"}
-]}
-
-### 規約
-"""
+def load_rules() -> str:
+    if not RULES_PATH.exists():
+        sys.exit(f"規約ファイルが見つかりません: {RULES_PATH}\n"
+                 "(medpeer-terraformプラグインの配置が変わった可能性。TF_REVIEW_RULES で指定してください)")
+    return RULES_PATH.read_text()
 
 
 def get_diff() -> str:
@@ -49,49 +42,29 @@ def get_diff() -> str:
         return sys.stdin.read()
     base = sys.argv[1] if len(sys.argv) > 1 else "HEAD"
     return subprocess.run(
-        ["git", "diff", base, "--", "*.tf"],
+        ["git", "diff", base, "--no-color", "--", "*.tf", "*.tfvars"],
         capture_output=True, text=True, check=True,
     ).stdout
 
 
+def review(diff: str, model: str = MODEL) -> tuple[list[dict], dict]:
+    return code_review.review(diff, load_rules(), model, TF_EXTS)
+
+
 def main() -> None:
-    if not RULES_PATH.exists():
-        sys.exit(f"規約ファイルが見つかりません: {RULES_PATH}\n"
-                 "(medpeer-terraformプラグインの配置が変わった可能性。パスを更新してください)")
     diff = get_diff()
     if not diff.strip():
         print("対象となる .tf の差分がありません")
         return
-
-    rules = RULES_PATH.read_text()
-    body = {
-        "model": MODEL,
-        "stream": False,
-        "think": False,
-        "format": "json",
-        "options": {"temperature": 0.1, "num_ctx": 16384},
-        "messages": [{
-            "role": "user",
-            "content": f"{PROMPT}{rules}\n\n### 差分\n```diff\n{diff}\n```",
-        }],
-    }
-    req = urllib.request.Request(
-        OLLAMA_URL,
-        data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=600) as res:
-        findings = json.loads(json.loads(res.read())["message"]["content"]).get("findings", [])
-
+    try:
+        model = oc.resolve_model(MODEL, oc.DEFAULT_MODEL)
+    except oc.OllamaError as e:
+        sys.exit(str(e))
+    findings, _ = review(diff, model)
     if not findings:
-        print("規約違反の指摘はありません(参考: ローカルLLMによるプレレビュー)")
+        print(f"規約違反の指摘はありません(参考: ローカルLLM={model} によるプレレビュー)")
         return
-    print(f"指摘 {len(findings)} 件(ローカルLLMのプレレビュー。偽陽性あり得ます):\n")
-    for i, f in enumerate(findings, 1):
-        mark = "" if f.get("confidence") == "high" else " (低確度)"
-        print(f"{i}. [{f.get('file', '?')}] {f.get('rule', '?')}{mark}")
-        print(f"   問題: {f.get('issue', '')}")
-        print(f"   修正: {f.get('fix', '')}\n")
+    print(code_review.format_findings(findings, model).replace("指摘 ", "規約に関する指摘 ", 1))
 
 
 if __name__ == "__main__":

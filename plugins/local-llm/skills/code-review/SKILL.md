@@ -1,12 +1,12 @@
 ---
 name: code-review
-description: Go/Pythonのコード差分をローカルLLM(Ollama)でセキュリティ・品質のプレレビューする。.go/.pyの変更をcommit・push・PR作成する前、またはユーザーが「プレレビュー」「セキュリティチェック」を求めた時に使用する。クラウドLLMの利用枠を消費しない。
+description: Go/Python/Ruby/Kotlin/TypeScriptのコード差分をローカルLLM(Ollama)でセキュリティ・品質のプレレビューする。.go/.py/.rb/.kt/.tsの変更をcommit・push・PR作成する前、またはユーザーが「プレレビュー」「セキュリティチェック」を求めた時に使用する。クラウドLLMの利用枠を消費しない。
 user-invocable: false
 ---
 
 # code-review スキル: コードプレレビュー(ローカルLLM)
 
-`.go` / `.py` の変更を push・PR作成する前に、ローカルLLMによるセキュリティ・品質プレレビューを
+`.go` / `.py` / `.rb` / `.kt` / `.ts` などの変更を push・PR作成する前に、ローカルLLMによるセキュリティ・品質プレレビューを
 実行し、明らかな問題の混入を防ぐ。手動実行用の `/code-review` コマンドと同じスクリプトを使う。
 
 ## 実行手順
@@ -22,17 +22,18 @@ curl -s http://localhost:11434/api/tags
 
 ### 2. 対象言語の判定
 
-差分(未コミット、またはこれからコミットしようとしている範囲)に `.go` / `.py` が含まれるか確認する。
-両方含まれる場合は両方の観点で実行する。
+差分(未コミット、またはこれからコミットしようとしている範囲)に対応言語(`.go` `.py` `.rb` `.kt` `.ts/.tsx/.js`)が含まれるか確認する。
 
 ### 3. レビュー実行
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules/go-security.md
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules/python-security.md
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py --auto
 ```
 
-該当する言語の方だけ実行する(base refを渡したい場合は末尾に追加する)。
+`--auto` は差分に含まれる拡張子から観点ファイル(`rules/go-security.md`, `python-security.md`, `ruby-security.md`,
+`kotlin-android.md`, `typescript-security.md`)を自動選択し、該当言語のファイルだけをそれぞれレビューする。
+特定の観点だけ使いたい場合は `code_review.py <rules.md> [base]` と明示する。
+
 
 ### 4. 指摘の扱い
 
@@ -41,7 +42,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/code_review.py ${CLAUDE_PLUGIN_ROOT}/rules
 - **低確度の指摘**: 修正はせず、参考情報としてユーザーへの報告に含めるだけにする
 - 指摘ゼロの場合も「ローカルプレレビュー: 指摘なし」と一言報告する
 
-## 精度の目安(検証済み)
+## 精度の目安(evals で継続測定。最新は local-llm リポジトリの evals/RESULTS.md)
 
 意図的に7件の脆弱性を仕込んだPythonサンプルで検証: `gemma4:12b` は6/7件検出(パストラバーサルを
 見逃し、約60秒)、`qwen3.6:27b` は7/7件検出(約2分30秒)。誤検知なし。セキュリティ影響が大きそうな

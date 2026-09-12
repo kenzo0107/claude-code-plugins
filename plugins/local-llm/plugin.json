@@ -1,5 +1,5 @@
 {
   "name": "local-llm",
-  "version": "0.6.0",
-  "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー、コミットメッセージ/PR本文生成、Go/Pythonコードプレレビュー、Androidビルド/インストール/リリース失敗の診断、マージ済みブランチの一括削除、git statusの色分け表示)"
+  "version": "0.7.0",
+  "description": "ローカルLLM(Ollama)でクラウド利用枠を消費せずに定型作業を行う (Terraform規約プレレビュー、コミットメッセージ/PR本文生成、Go/Python/Ruby/Kotlin/TypeScriptコードプレレビュー、他人のPRのプレレビュー、ログ要約、個人情報マスキング、Androidビルド/インストール/リリース失敗の診断、git push前の自動プレレビューフック、マージ済みブランチの一括削除、git statusの色分け表示)"
 }
