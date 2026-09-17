@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*), Read
+allowed-tools: Bash(python3 *), Bash(ollama list*), Read
 description: 長いログ・CI出力・diff・文書をローカルLLMで要約する(クラウド利用枠を消費しない)
 user-invocable: true
 args:
@@ -18,7 +18,7 @@ args:
 ### ステップ1: 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `gemma4:12b` が無い場合: その旨を伝え、通常通り自分で読む(ブロッカーにしない)
