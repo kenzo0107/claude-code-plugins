@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(adb *), Bash(emulator *), Bash(./gradlew *), Bash(find *), Bash(command -v *), Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*)
+allowed-tools: Bash(adb *), Bash(emulator *), Bash(./gradlew *), Bash(find *), Bash(command -v *), Bash(python3 *), Bash(ollama list*)
 description: エミュレータを起動し、Androidアプリをビルド・インストールする。失敗時はローカルLLMが原因を診断する(クラウド利用枠を消費しない)
 user-invocable: true
 ---
@@ -83,7 +83,7 @@ timeout 120 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | gr
 ### ステップ7: 失敗診断(ローカルLLM)
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `gemma4:12b` が無い場合: その旨を伝え、通常通り自分でログを読んで

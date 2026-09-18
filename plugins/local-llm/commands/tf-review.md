@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*), Read
+allowed-tools: Bash(python3 *), Bash(ollama list*), Read
 description: Terraform差分をローカルLLMでMedPeer規約プレレビューする(クラウド利用枠を消費しない)
 user-invocable: true
 args:
@@ -19,7 +19,7 @@ MedPeerコーディング規約に照らしてプレレビューする。処理�
 ### ステップ1: 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない場合: Ollamaが起動していない。`brew services start ollama` を案内して終了する

@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*), Read
+allowed-tools: Bash(python3 *), Bash(ollama list*), Read
 description: ログ・テキストの個人情報(メール・IP・電話・人名等)をローカルでマスクする。クラウドLLMに渡す前の前処理
 user-invocable: true
 args:
@@ -19,7 +19,7 @@ args:
 ### ステップ1: 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `gemma4:12b` が無い場合: その旨を伝えて終了する(マスク無しでクラウドに渡さない)

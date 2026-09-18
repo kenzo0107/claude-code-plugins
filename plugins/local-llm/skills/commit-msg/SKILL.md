@@ -13,7 +13,7 @@ git commit のメッセージを自分(Claude)の推論で組み立てる代わ�
 ### 1. 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `qwen3.6:27b` が無い場合: このスキルをスキップし、その旨をユーザーに

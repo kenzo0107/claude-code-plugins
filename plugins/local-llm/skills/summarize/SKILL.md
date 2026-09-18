@@ -19,7 +19,7 @@ user-invocable: false
 ### 1. 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `gemma4:12b` が無い場合: スキップして通常通り自分で読む(ブロッカーにしない)

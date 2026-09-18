@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git checkout:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh pr create:*), Bash(gh repo view:*), Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*)
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git checkout:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh pr create:*), Bash(gh repo view:*), Bash(python3 *), Bash(ollama list*)
 description: ブランチ作成・コミット・push・PR作成を一括で行う。メッセージ生成はローカルLLM(公式のcommit-commands:commit-push-prと同等の作業をクラウド利用枠を消費せず実施)
 user-invocable: true
 ---
@@ -9,7 +9,7 @@ user-invocable: true
 `commit-commands:commit-push-pr` と同じ一連の作業(ブランチ作成・コミット・push・PR作成)を、
 コミットメッセージとPR本文の生成にローカルLLM(Ollama)を使って行う。
 `commit-commands:commit-push-pr` はコマンド自身の `allowed-tools` が git/gh 系のみに絞られており
-python3/curlを呼べないため、ローカルLLMのスキルが発火できない。このコマンドはその制約を受けずに
+python3を呼べないため、ローカルLLMのスキルが発火できない。このコマンドはその制約を受けずに
 同等の結果をクラウド利用枠ゼロで得るためのもの。
 
 ## Context
@@ -24,7 +24,7 @@ python3/curlを呼べないため、ローカルLLMのスキルが発火でき�
 ### ステップ1: 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない、または `qwen3.6:27b` / `gemma4:12b` のいずれかが無い場合: その旨を伝え、通常の

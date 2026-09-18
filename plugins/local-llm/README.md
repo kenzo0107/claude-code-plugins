@@ -97,7 +97,7 @@ Androidプロジェクト(`gradlew` があるディレクトリ)をビルドす�
 > **公式 `commit-commands:commit` / `commit-commands:commit-push-pr` との違い**:
 > 公式コマンドは `allowed-tools` が git/gh 系のみに絞られており、プロンプトも
 > 「他のツールは使うな」と明記しているため、本プラグインの自動発火スキル
-> (`python3` / `curl` が必要)はその実行中には発火できない。同等の作業をローカルLLMで
+> (`python3` が必要)はその実行中には発火できない。同等の作業をローカルLLMで
 > 行いたい場合は、公式コマンドではなく `/commit-msg`(= `/commit` 相当)や
 > `/commit-push-pr`(= `/commit-push-pr` 相当)をこちらのプラグインから使うこと。
 

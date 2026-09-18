@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(python3 *), Bash(curl -s http://localhost:11434/*), Bash(ollama list*), Bash(git diff *), Bash(git branch *), Bash(gh pr create *), Bash(gh repo view *)
+allowed-tools: Bash(python3 *), Bash(ollama list*), Bash(git diff *), Bash(git branch *), Bash(gh pr create *), Bash(gh repo view *)
 description: ブランチ差分からPR本文(Summary/Test plan)をローカルLLMで生成する(クラウド利用枠を消費しない)
 user-invocable: true
 args:
@@ -17,7 +17,7 @@ args:
 ### ステップ1: 前提確認
 
 ```bash
-curl -s http://localhost:11434/api/tags
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/ollama_health.py
 ```
 
 - 接続できない場合: Ollamaが起動していない。`brew services start ollama` を案内して終了する
