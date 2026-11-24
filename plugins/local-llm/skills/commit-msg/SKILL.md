@@ -54,3 +54,5 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/commit_msg.py
 - 既定モデルは `qwen3.6:27b`(生成に数十秒)。精度検証の結果、`gemma4:12b` は複数の変更を
   含むdiffで箇条書きへの分解を誤ることがあったため、コミットメッセージはこちらを既定にしている
 - モデル変更: 環境変数 `LOCAL_REVIEW_MODEL`
+- diff は行内差分(`--word-diff`、和文は1文字単位)で渡し、未変更部分は変更箇所の前後30文字だけ残す。
+  文書のように1行が長いファイルで入力が膨らみ生成が遅くなるのを防ぐため。残す文字数は `LOCAL_LLM_WORD_DIFF_KEEP`
