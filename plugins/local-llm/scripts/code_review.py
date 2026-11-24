@@ -19,6 +19,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "common")]
 import ollama_client as oc  # noqa: E402
+import fp_filters  # noqa: E402
 
 MODEL = os.environ.get("LOCAL_REVIEW_MODEL", oc.DEFAULT_MODEL)
 # リポジトリでは code-review/rules/、プラグインでは <plugin>/rules/(scripts/ の1つ上)
@@ -106,7 +107,10 @@ def review(diff: str, rules: str, model: str = MODEL, exts: tuple[str, ...] | No
         )
         findings.extend(result.get("findings", []))
         stats_list.append(stats)
-    return dedupe(findings), oc.merge_stats(stats_list)
+    kept, suppressed = fp_filters.apply(dedupe(findings), diff)
+    stats = oc.merge_stats(stats_list)
+    stats["suppressed"] = suppressed
+    return kept, stats
 
 
 def dedupe(findings: list[dict]) -> list[dict]:
